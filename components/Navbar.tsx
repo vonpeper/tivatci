@@ -35,14 +35,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLogin }) => {
             href="#"
             className="flex items-center gap-3.5 group focus:outline-none"
           >
-            <div className="relative w-12 h-12 shrink-0 transition-transform group-hover:scale-105">
-              <Image
-                src="/images/logo-tiva-mexico.png"
-                alt="TIVA México"
-                fill
-                className="object-contain"
-                priority
-              />
+            <div className="relative w-12 h-12 shrink-0 bg-white rounded-full p-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.25)] flex items-center justify-center transition-transform group-hover:scale-105">
+              <div className="relative w-full h-full">
+                <Image
+                  src="/images/logo-tiva-mexico.png"
+                  alt="TIVA México"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
             </div>
 
             <div className="flex flex-col">
