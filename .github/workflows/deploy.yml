@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -16,35 +17,64 @@ jobs:
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
+          host: ${{ secrets.VPS_HOST || '66.29.152.229' }}
+          username: ${{ secrets.VPS_USERNAME || 'jose' }}
           key: ${{ secrets.VPS_SSH_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
-          port: ${{ secrets.VPS_PORT || 22 }}
+          port: ${{ secrets.VPS_PORT || 2226 }}
           script: |
             set -e
-            echo "🚀 Iniciando despliegue en VPS..."
+            echo "🚀 Iniciando despliegue en VPS (tivataller.com)..."
 
-            # Ir al directorio del proyecto en el VPS
-            cd ${{ secrets.VPS_TARGET_DIR || '/var/www/tivatci' }}
-
-            echo "📥 Descargando últimos cambios de GitHub..."
-            git reset --hard
-            git pull origin main
-
-            echo "📦 Instalando dependencias..."
-            npm install
-
-            echo "🔨 Compilando proyecto Next.js..."
-            npm run build
-
-            echo "🔄 Reiniciando aplicación con PM2 o Systemd..."
-            if command -v pm2 &> /dev/null; then
-              pm2 restart tiva || pm2 reload tiva || pm2 start npm --name "tiva" -- start || pm2 restart all
-            elif systemctl list-units --type=service | grep -q tiva; then
-              sudo systemctl restart tiva
+            # 1. Localizar directorio del proyecto
+            TARGET_DIR=""
+            if [ -n "${{ secrets.VPS_TARGET_DIR }}" ] && [ -d "${{ secrets.VPS_TARGET_DIR }}" ]; then
+              TARGET_DIR="${{ secrets.VPS_TARGET_DIR }}"
+            elif [ -d "/opt/stacks/tiva" ]; then
+              TARGET_DIR="/opt/stacks/tiva"
+            elif [ -d "/home/jose/tivatci" ]; then
+              TARGET_DIR="/home/jose/tivatci"
+            elif [ -d "/home/jose/apps/tiva" ]; then
+              TARGET_DIR="/home/jose/apps/tiva"
+            elif [ -d "/var/www/tivatci" ]; then
+              TARGET_DIR="/var/www/tivatci"
             else
-              echo "⚠️ Advertencia: No se detectó PM2 ni servicio systemd 'tiva'. Ajusta el comando de reinicio si es necesario."
+              TARGET_DIR="/home/jose/apps/tiva"
+              mkdir -p "$TARGET_DIR"
+            fi
+
+            echo "📂 Directorio de trabajo: $TARGET_DIR"
+            cd "$TARGET_DIR"
+
+            # 2. Clonar o actualizar repositorio
+            if [ ! -d ".git" ]; then
+              echo "📥 Clonando repositorio https://github.com/vonpeper/tivatci.git..."
+              git clone https://github.com/vonpeper/tivatci.git .
+            else
+              echo "📥 Actualizando cambios desde GitHub (main)..."
+              git fetch origin main
+              git reset --hard origin/main
+            fi
+
+            # 3. Despliegue según el entorno (Docker Compose vs Node/PM2)
+            if [ -f "docker-compose.yml" ] && command -v docker &> /dev/null; then
+              echo "🐳 Desplegando contenedor Docker con Traefik..."
+              docker compose up -d --build --force-recreate
+              docker image prune -f
+            elif command -v pm2 &> /dev/null; then
+              echo "📦 Instalando dependencias y compilando..."
+              npm install
+              npm run build
+              echo "🔄 Reiniciando proceso PM2..."
+              pm2 reload tiva || pm2 restart tiva || pm2 start npm --name "tiva" -- start || pm2 restart all
+            elif systemctl list-units --type=service 2>/dev/null | grep -q tiva; then
+              npm install
+              npm run build
+              sudo systemctl restart tiva || true
+            else
+              echo "📦 Instalando dependencias y compilando..."
+              npm install
+              npm run build
             fi
 
             echo "✅ ¡Despliegue completado con éxito en tivataller.com!"

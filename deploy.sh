@@ -4,29 +4,35 @@ set -e
 
 echo "🚀 Iniciando despliegue de TIVA..."
 
-# Obtener los últimos cambios de main
+# 1. Obtener los últimos cambios de main
 echo "📥 Git Pull..."
 git reset --hard
 git pull origin main
 
-# Instalar dependencias
-echo "📦 Instalando dependencias npm..."
-npm install
-
-# Compilar producción Next.js
-echo "🔨 Compilando Next.js..."
-npm run build
-
-# Reiniciar servicio
-echo "🔄 Reiniciando aplicación..."
-if command -v pm2 &> /dev/null; then
+# 2. Despliegue según el entorno
+if [ -f "docker-compose.yml" ] && command -v docker &> /dev/null; then
+  echo "🐳 Desplegando contenedor Docker..."
+  docker compose up -d --build --force-recreate
+  docker image prune -f
+elif command -v pm2 &> /dev/null; then
+  echo "📦 Instalando dependencias npm..."
+  npm install
+  echo "🔨 Compilando Next.js..."
+  npm run build
+  echo "🔄 Reiniciando proceso PM2..."
   pm2 reload tiva || pm2 restart tiva || pm2 start npm --name "tiva" -- start || pm2 restart all
-  echo "✅ PM2 recargado con éxito."
-elif systemctl list-units --type=service | grep -q tiva; then
-  sudo systemctl restart tiva
-  echo "✅ Servicio systemd reiniciado con éxito."
+elif systemctl list-units --type=service 2>/dev/null | grep -q tiva; then
+  echo "📦 Instalando dependencias npm..."
+  npm install
+  echo "🔨 Compilando Next.js..."
+  npm run build
+  echo "🔄 Reiniciando systemd service..."
+  sudo systemctl restart tiva || true
 else
-  echo "⚠️ Advertencia: Configura PM2 o Systemd para servir la app en segundo plano."
+  echo "📦 Instalando dependencias npm..."
+  npm install
+  echo "🔨 Compilando Next.js..."
+  npm run build
 fi
 
-echo "🎉 Despliegue finalizado con éxito."
+echo "🎉 Despliegue finalizado con éxito en https://tivataller.com"
