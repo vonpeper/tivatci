@@ -1,0 +1,50 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            set -e
+            echo "🚀 Iniciando despliegue en VPS..."
+
+            # Ir al directorio del proyecto en el VPS
+            cd ${{ secrets.VPS_TARGET_DIR || '/var/www/tivatci' }}
+
+            echo "📥 Descargando últimos cambios de GitHub..."
+            git reset --hard
+            git pull origin main
+
+            echo "📦 Instalando dependencias..."
+            npm install
+
+            echo "🔨 Compilando proyecto Next.js..."
+            npm run build
+
+            echo "🔄 Reiniciando aplicación con PM2 o Systemd..."
+            if command -v pm2 &> /dev/null; then
+              pm2 restart tiva || pm2 reload tiva || pm2 start npm --name "tiva" -- start || pm2 restart all
+            elif systemctl list-units --type=service | grep -q tiva; then
+              sudo systemctl restart tiva
+            else
+              echo "⚠️ Advertencia: No se detectó PM2 ni servicio systemd 'tiva'. Ajusta el comando de reinicio si es necesario."
+            fi
+
+            echo "✅ ¡Despliegue completado con éxito en tivataller.com!"
