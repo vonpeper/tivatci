@@ -8,81 +8,27 @@ on:
 
 jobs:
   deploy:
+    name: Deploy to VPS
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          host: 66.29.152.229
-          port: 2226
-          username: jose
-          password: ${{ secrets.VPS_PASSWORD }}
-          envs: GH_TOKEN
-          script: |
-            set -e
-            echo "🚀 Iniciando despliegue en VPS (tivataller.com)..."
+          python-version: '3.x'
 
-            # 1. Localizar directorio del proyecto
-            TARGET_DIR=""
-            if [ -n "${{ secrets.VPS_TARGET_DIR }}" ] && [ -d "${{ secrets.VPS_TARGET_DIR }}" ]; then
-              TARGET_DIR="${{ secrets.VPS_TARGET_DIR }}"
-            elif [ -d "/opt/stacks/tiva" ]; then
-              TARGET_DIR="/opt/stacks/tiva"
-            elif [ -d "/home/jose/tivatci" ]; then
-              TARGET_DIR="/home/jose/tivatci"
-            elif [ -d "/home/jose/apps/tiva" ]; then
-              TARGET_DIR="/home/jose/apps/tiva"
-            elif [ -d "/home/jose/apps/tivataller" ]; then
-              TARGET_DIR="/home/jose/apps/tivataller"
-            elif [ -d "/var/www/tivatci" ]; then
-              TARGET_DIR="/var/www/tivatci"
-            else
-              TARGET_DIR="/home/jose/apps/tiva"
-              mkdir -p "$TARGET_DIR"
-            fi
+      - name: Install dependencies
+        run: pip install paramiko
 
-            echo "📂 Directorio de trabajo: $TARGET_DIR"
-            cd "$TARGET_DIR"
-
-            # 2. Configurar origen autenticado para el repositorio privado
-            REPO_AUTH_URL="https://x-access-token:${GH_TOKEN}@github.com/vonpeper/tivatci.git"
-
-            if [ ! -d ".git" ]; then
-              echo "📥 Clonando repositorio..."
-              git clone "$REPO_AUTH_URL" .
-            else
-              echo "📥 Actualizando cambios desde GitHub..."
-              git remote set-url origin "$REPO_AUTH_URL"
-              git fetch origin main
-              git reset --hard origin/main
-              git remote set-url origin "https://github.com/vonpeper/tivatci.git"
-            fi
-
-            # 3. Despliegue según el entorno (Docker Compose vs Node/PM2)
-            if [ -f "docker-compose.yml" ] && command -v docker &> /dev/null; then
-              echo "🐳 Desplegando contenedor Docker con Traefik..."
-              docker compose up -d --build --force-recreate
-              docker image prune -f
-            elif command -v pm2 &> /dev/null; then
-              echo "📦 Instalando dependencias y compilando..."
-              npm install
-              npm run build
-              echo "🔄 Reiniciando proceso PM2..."
-              pm2 reload tiva || pm2 restart tiva || pm2 start npm --name "tiva" -- start || pm2 restart all
-            elif systemctl list-units --type=service 2>/dev/null | grep -q tiva; then
-              npm install
-              npm run build
-              sudo systemctl restart tiva || true
-            else
-              echo "📦 Instalando dependencias y compilando..."
-              npm install
-              npm run build
-            fi
-
-            echo "✅ ¡Despliegue completado con éxito en tivataller.com!"
+      - name: Deploy to VPS via SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST || '66.29.152.229' }}
+          VPS_PORT: ${{ secrets.VPS_PORT || '2226' }}
+          VPS_USERNAME: ${{ secrets.VPS_USERNAME || 'jose' }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+          VPS_TARGET_DIR: ${{ secrets.VPS_TARGET_DIR }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/deploy_vps.py
