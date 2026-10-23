@@ -4,11 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { ArrowRight, ExternalLink, BookOpen, LogIn } from "lucide-react";
 
-interface HeroProps {
-  onOpenLogin: () => void;
-}
-
-export const Hero: React.FC<HeroProps> = ({ onOpenLogin }) => {
+export const Hero: React.FC = () => {
   return (
     <section className="relative min-h-[90vh] flex flex-col justify-center items-center pt-28 pb-20 sm:pt-36 sm:pb-28 overflow-hidden bg-[#030a16] text-white">
       {/* 1. Imagen de Fondo Oficial Aprobada (Identidad del Evento - Muy tenue para máxima legibilidad) */}
@@ -104,13 +100,15 @@ export const Hero: React.FC<HeroProps> = ({ onOpenLogin }) => {
         {/* BOTONES DE ACCIÓN PRINCIPALES */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 w-full sm:w-auto">
           {/* ACCESO A LA PLATAFORMA */}
-          <button
-            onClick={onOpenLogin}
+          <a
+            href="https://tiva.prol.prosuite.pro/sign-in"
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full text-sm sm:text-base font-semibold text-white bg-apple-blue hover:bg-apple-blueHover active:scale-95 transition-all duration-150 shadow-[0_4px_24px_rgba(0,113,227,0.5)] hover:shadow-[0_6px_32px_rgba(0,113,227,0.65)]"
           >
             <LogIn className="w-4 h-4" />
             <span>Acceso a la Plataforma</span>
-          </button>
+          </a>
 
           {/* INSCRIPCIONES CON LA SMHAP */}
           <a

@@ -4,11 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { LogIn, Menu, X, ExternalLink } from "lucide-react";
 
-interface NavbarProps {
-  onOpenLogin: () => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ onOpenLogin }) => {
+export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -101,23 +97,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLogin }) => {
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
 
-            <button
-              onClick={onOpenLogin}
+            <a
+              href="https://tiva.prol.prosuite.pro/sign-in"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold text-white bg-apple-blue hover:bg-apple-blueHover active:scale-95 transition-all shadow-sm"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Acceso a la Plataforma</span>
-            </button>
+            </a>
           </div>
 
           {/* Mobile menu trigger */}
           <div className="flex items-center sm:hidden gap-2">
-            <button
-              onClick={onOpenLogin}
+            <a
+              href="https://tiva.prol.prosuite.pro/sign-in"
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-apple-blue active:scale-95 transition-all"
             >
               Acceso
-            </button>
+            </a>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-lg transition-colors ${
@@ -158,16 +158,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLogin }) => {
               <span>Inscripciones con la SMHAP</span>
               <ExternalLink className="w-4 h-4" />
             </a>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenLogin();
-              }}
+            <a
+              href="https://tiva.prol.prosuite.pro/sign-in"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileMenuOpen(false)}
               className="w-full py-3 flex items-center justify-center gap-2 rounded-full text-sm font-semibold text-white bg-apple-blue"
             >
               <LogIn className="w-4 h-4" />
               <span>Acceso a la Plataforma</span>
-            </button>
+            </a>
           </div>
         </div>
       )}

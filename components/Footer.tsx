@@ -5,11 +5,7 @@ import Image from "next/image";
 import { ExternalLink, Mail, Phone, MapPin } from "lucide-react";
 import { NeuronCanvas } from "@/components/NeuronCanvas";
 
-interface FooterProps {
-  onOpenLogin: () => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({ onOpenLogin }) => {
+export const Footer: React.FC = () => {
   return (
     <footer className="relative bg-[#030a16] text-slate-300 text-xs border-t border-white/10 pt-16 pb-12 overflow-hidden">
       {/* Fondo interactivo animado de neuronas */}
@@ -50,12 +46,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenLogin }) => {
 
           {/* Quick Links */}
           <div className="flex flex-wrap items-center gap-6 text-xs font-medium">
-            <button
-              onClick={onOpenLogin}
+            <a
+              href="https://tiva.prol.prosuite.pro/sign-in"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-cyan-400 hover:text-cyan-300 hover:underline"
             >
               Acceso a la Plataforma
-            </button>
+            </a>
             <a href="#programa" className="text-slate-300 hover:text-white transition-colors">
               Programa
             </a>
