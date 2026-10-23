@@ -13,12 +13,15 @@ import {
   Loader2,
   ExternalLink,
   CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const PLATFORM_SIGNIN_URL = "https://tiva.prol.prosuite.pro/sign-in";
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
@@ -69,11 +72,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
     setLoading(true);
 
-    // Simulación de autenticación y redirección al aula virtual institucional
+    // Conexión y redirección directa al Aula Virtual
     setTimeout(() => {
       setLoading(false);
       setSuccess(true);
-    }, 1200);
+      // Redirección inmediata a la plataforma educativa
+      window.location.href = PLATFORM_SIGNIN_URL;
+    }, 700);
   };
 
   return (
@@ -124,20 +129,27 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         {/* Contenido / Formulario */}
         <div className="p-6 sm:p-7 pt-5">
           {success ? (
-            <div className="py-8 text-center space-y-3">
-              <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-8 h-8" />
+            <div className="py-8 text-center space-y-4">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                <CheckCircle2 className="w-10 h-10" />
               </div>
-              <h4 className="text-lg font-bold text-apple-text">
+              <h4 className="text-xl font-bold text-apple-text">
                 Acceso Concedido
               </h4>
-              <p className="text-xs sm:text-sm text-apple-subtext max-w-xs mx-auto">
-                Validación exitosa. Conectando con la plataforma educativa de TIVA México y Hospital Ángeles del Pedregal...
+              <p className="text-xs sm:text-sm text-apple-subtext max-w-xs mx-auto leading-relaxed">
+                Conectando de forma segura con la plataforma educativa de TIVA México...
               </p>
-              <div className="pt-4">
+              <div className="pt-2 flex flex-col items-center gap-3">
                 <span className="inline-flex items-center gap-2 text-xs font-medium text-apple-blue">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Conectando al campus virtual
+                  <Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo a la plataforma...
                 </span>
+                <a
+                  href={PLATFORM_SIGNIN_URL}
+                  className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-white bg-apple-blue hover:bg-apple-blueHover active:scale-95 transition-all shadow-[0_2px_10px_rgba(0,113,227,0.25)] flex items-center justify-center gap-2"
+                >
+                  <span>Entrar al Aula Virtual</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
               </div>
             </div>
           ) : (
@@ -239,6 +251,17 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                     </>
                   )}
                 </button>
+              </div>
+
+              {/* Enlace directo a sign-in */}
+              <div className="pt-1 text-center">
+                <a
+                  href={PLATFORM_SIGNIN_URL}
+                  className="text-xs font-medium text-apple-blue hover:underline inline-flex items-center gap-1"
+                >
+                  <span>O ingresa directamente a la plataforma</span>
+                  <ArrowRight className="w-3 h-3" />
+                </a>
               </div>
 
               {/* Sección de soporte y recuperación */}
