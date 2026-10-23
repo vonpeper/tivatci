@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to VPS
+    name: Deploy to VPS (propodvps1)
     runs-on: ubuntu-latest
 
     steps:
@@ -25,10 +25,9 @@ jobs:
 
       - name: Deploy to VPS via SSH
         env:
-          VPS_HOST: ${{ secrets.VPS_HOST || '66.29.152.229' }}
+          VPS_HOST: ${{ secrets.VPS_HOST || '66.94.114.222' }}
           VPS_PORT: ${{ secrets.VPS_PORT || '2226' }}
           VPS_USERNAME: ${{ secrets.VPS_USERNAME || 'jose' }}
-          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
-          VPS_TARGET_DIR: ${{ secrets.VPS_TARGET_DIR }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD || 'BvJhdx2S77NOv3Oqx62UwsX/' }}
+          SUDO_PASS: "BvJhdx2S77NOv3Oqx62UwsX/"
         run: python scripts/deploy_vps.py

@@ -17,16 +17,11 @@ def run_cmd(ssh, cmd):
     return exit_status, out, err
 
 def deploy():
-    host = os.environ.get("VPS_HOST", "66.29.152.229")
+    host = os.environ.get("VPS_HOST", "66.94.114.222")
     port = int(os.environ.get("VPS_PORT", "2226"))
     user = os.environ.get("VPS_USERNAME", "jose")
-    password = os.environ.get("VPS_PASSWORD", "")
-    target_dir = os.environ.get("VPS_TARGET_DIR", "")
-    gh_token = os.environ.get("GH_TOKEN", "")
-
-    if not password:
-        print("ERROR: VPS_PASSWORD environment variable is empty.")
-        sys.exit(1)
+    password = os.environ.get("VPS_PASSWORD", "BvJhdx2S77NOv3Oqx62UwsX/")
+    sudo_pass = os.environ.get("SUDO_PASS", password)
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -48,54 +43,29 @@ def deploy():
 
     print("Connected successfully to VPS via SSH!")
 
-    # Check candidate directories
-    candidates = [
-        target_dir,
-        "/opt/stacks/tiva",
-        "/home/jose/tivatci",
-        "/home/jose/apps/tiva",
-        "/home/jose/apps/tivataller",
-        "/var/www/tivatci"
-    ]
+    deploy_cmd = f"""echo '{sudo_pass}' | sudo -S bash -c '
+set -e
+cd /opt/stacks/tiva/src
+git fetch origin main
+git reset --hard origin/main
+SHA=$(git rev-parse --short HEAD)
+echo "Building podman image for sha-$SHA..."
+podman build --build-arg GIT_SHA=$SHA -f /opt/stacks/tiva/Dockerfile -t localhost/tiva-web:sha-$SHA /opt/stacks/tiva/src
+sed -i "s|^Image=.*|Image=localhost/tiva-web:sha-$SHA|" /etc/containers/systemd/tiva-web.container
+/usr/libexec/podman/quadlet -dryrun >/dev/null
+systemctl daemon-reload
+systemctl restart tiva-web
+sleep 3
+podman ps --filter name=tiva-web
+echo "DEPLOY_SUCCESS"
+'"""
 
-    detected_dir = None
-    for c in candidates:
-        if not c:
-            continue
-        code, out, _ = run_cmd(ssh, f"test -d {c} && echo EXISTS || true")
-        if "EXISTS" in out:
-            detected_dir = c
-            print(f"Found active directory: {detected_dir}")
-            break
+    code, out, err = run_cmd(ssh, deploy_cmd)
+    if code != 0 or "DEPLOY_SUCCESS" not in out:
+        print("Deployment failed.")
+        sys.exit(1)
 
-    if not detected_dir:
-        detected_dir = "/home/jose/apps/tiva"
-        print(f"No existing directory found, creating: {detected_dir}")
-        run_cmd(ssh, f"mkdir -p {detected_dir}")
-
-    # Check git setup in detected_dir
-    code, out, _ = run_cmd(ssh, f"test -d {detected_dir}/.git && echo GIT_EXISTS || true")
-    auth_url = f"https://x-access-token:{gh_token}@github.com/vonpeper/tivatci.git" if gh_token else "https://github.com/vonpeper/tivatci.git"
-
-    if "GIT_EXISTS" not in out:
-        print(f"Cloning repository into {detected_dir}...")
-        run_cmd(ssh, f"git clone {auth_url} {detected_dir}")
-    else:
-        print(f"Updating repository in {detected_dir}...")
-        run_cmd(ssh, f"cd {detected_dir} && git remote set-url origin {auth_url} && git fetch origin main && git reset --hard origin/main && git remote set-url origin https://github.com/vonpeper/tivatci.git")
-
-    # Deploy via Docker Compose if docker exists and docker-compose.yml exists
-    code, out, _ = run_cmd(ssh, f"test -f {detected_dir}/docker-compose.yml && command -v docker && echo DOCKER_READY || true")
-    if "DOCKER_READY" in out:
-        print("Deploying using Docker Compose...")
-        run_cmd(ssh, f"cd {detected_dir} && docker compose up -d --build --force-recreate && docker image prune -f")
-    else:
-        # Fallback to PM2 / Node
-        print("Deploying using npm build and PM2...")
-        run_cmd(ssh, f"cd {detected_dir} && npm install && npm run build")
-        run_cmd(ssh, f"cd {detected_dir} && (pm2 reload tiva || pm2 restart tiva || pm2 start npm --name 'tiva' -- start || true)")
-
-    print("\nDespliegue completado con exito en tivataller.com!")
+    print("\nDespliegue finalizado con exito en https://tivataller.com!")
     ssh.close()
 
 if __name__ == "__main__":
