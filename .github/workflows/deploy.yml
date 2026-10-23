@@ -16,12 +16,14 @@ jobs:
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          host: ${{ secrets.VPS_HOST || '66.29.152.229' }}
-          username: ${{ secrets.VPS_USERNAME || 'jose' }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: 66.29.152.229
+          port: 2226
+          username: jose
           password: ${{ secrets.VPS_PASSWORD }}
-          port: ${{ secrets.VPS_PORT || 2226 }}
+          envs: GH_TOKEN
           script: |
             set -e
             echo "🚀 Iniciando despliegue en VPS (tivataller.com)..."
@@ -36,6 +38,8 @@ jobs:
               TARGET_DIR="/home/jose/tivatci"
             elif [ -d "/home/jose/apps/tiva" ]; then
               TARGET_DIR="/home/jose/apps/tiva"
+            elif [ -d "/home/jose/apps/tivataller" ]; then
+              TARGET_DIR="/home/jose/apps/tivataller"
             elif [ -d "/var/www/tivatci" ]; then
               TARGET_DIR="/var/www/tivatci"
             else
@@ -46,14 +50,18 @@ jobs:
             echo "📂 Directorio de trabajo: $TARGET_DIR"
             cd "$TARGET_DIR"
 
-            # 2. Clonar o actualizar repositorio
+            # 2. Configurar origen autenticado para el repositorio privado
+            REPO_AUTH_URL="https://x-access-token:${GH_TOKEN}@github.com/vonpeper/tivatci.git"
+
             if [ ! -d ".git" ]; then
-              echo "📥 Clonando repositorio https://github.com/vonpeper/tivatci.git..."
-              git clone https://github.com/vonpeper/tivatci.git .
+              echo "📥 Clonando repositorio..."
+              git clone "$REPO_AUTH_URL" .
             else
-              echo "📥 Actualizando cambios desde GitHub (main)..."
+              echo "📥 Actualizando cambios desde GitHub..."
+              git remote set-url origin "$REPO_AUTH_URL"
               git fetch origin main
               git reset --hard origin/main
+              git remote set-url origin "https://github.com/vonpeper/tivatci.git"
             fi
 
             # 3. Despliegue según el entorno (Docker Compose vs Node/PM2)
