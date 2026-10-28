@@ -2,18 +2,14 @@
 
 import React from "react";
 import Image from "next/image";
-import { Quote, Sparkles, Stethoscope, HeartPulse } from "lucide-react";
+import { Quote, Sparkles, Stethoscope } from "lucide-react";
 
 export interface QuoteSectionProps {
   authorName?: string;
-  authorTitle?: string;
-  institution?: string;
 }
 
 export const QuoteSection: React.FC<QuoteSectionProps> = ({
   authorName = "Dr. Jesús Alarcón",
-  authorTitle = "Especialista en Anestesiología",
-  institution = "Curso-Taller TIVA · Hospital Ángeles del Pedregal",
 }) => {
   return (
     <section
@@ -96,26 +92,14 @@ export const QuoteSection: React.FC<QuoteSectionProps> = ({
           </p>
         </blockquote>
 
-        {/* Tarjeta de Reconocimiento y Autoría Clínica */}
-        <div className="mt-8 sm:mt-10 inline-flex flex-col sm:flex-row items-center gap-4 px-6 py-4 rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,0,0,0.45)] hover:border-sky-400/40 transition-all duration-300">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500/20 to-blue-600/30 border border-sky-400/30 flex items-center justify-center text-sky-300 shadow-inner shrink-0">
-            <Stethoscope className="w-6 h-6" />
+        {/* Tarjeta de Reconocimiento y Autoría Clínica - Solo nombre del Doctor */}
+        <div className="mt-8 sm:mt-10 inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,0,0,0.45)] hover:border-sky-400/40 transition-all duration-300">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500/20 to-blue-600/30 border border-sky-400/30 flex items-center justify-center text-sky-300 shadow-inner shrink-0">
+            <Stethoscope className="w-4 h-4" />
           </div>
-
-          <div className="text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2">
-              <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                {authorName}
-              </h3>
-              <HeartPulse className="w-4 h-4 text-rose-400 shrink-0 opacity-80" />
-            </div>
-            <p className="text-xs sm:text-sm text-sky-200/90 font-medium">
-              {authorTitle}
-            </p>
-            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
-              {institution}
-            </p>
-          </div>
+          <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+            {authorName}
+          </span>
         </div>
       </div>
     </section>
