@@ -11,9 +11,9 @@ export interface QuoteSectionProps {
 }
 
 export const QuoteSection: React.FC<QuoteSectionProps> = ({
-  authorName = "Dr. Carlos Eduardo Benítez R.",
-  authorTitle = "Profesor Titular de Modelado PK/PD",
-  institution = "Hospital Ángeles del Pedregal · TIVA México",
+  authorName = "Dr. Jesús Alarcón",
+  authorTitle = "Especialista en Anestesiología",
+  institution = "Curso-Taller TIVA · Hospital Ángeles del Pedregal",
 }) => {
   return (
     <section
