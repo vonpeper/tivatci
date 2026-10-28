@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { LogIn, Menu, X, ExternalLink } from "lucide-react";
+import { PLATFORM_SIGNIN_URL } from "@/lib/platform";
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -98,7 +99,7 @@ export const Navbar: React.FC = () => {
             </a>
 
             <a
-              href="https://tiva.prol.prosuite.pro/sign-in"
+              href={PLATFORM_SIGNIN_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold text-white bg-apple-blue hover:bg-apple-blueHover active:scale-95 transition-all shadow-sm"
@@ -111,7 +112,7 @@ export const Navbar: React.FC = () => {
           {/* Mobile menu trigger */}
           <div className="flex items-center sm:hidden gap-2">
             <a
-              href="https://tiva.prol.prosuite.pro/sign-in"
+              href={PLATFORM_SIGNIN_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-apple-blue active:scale-95 transition-all"
@@ -159,7 +160,7 @@ export const Navbar: React.FC = () => {
               <ExternalLink className="w-4 h-4" />
             </a>
             <a
-              href="https://tiva.prol.prosuite.pro/sign-in"
+              href={PLATFORM_SIGNIN_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)}

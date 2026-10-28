@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { ArrowRight, ExternalLink, BookOpen, LogIn } from "lucide-react";
+import { PLATFORM_SIGNIN_URL } from "@/lib/platform";
 
 export const Hero: React.FC = () => {
   return (
@@ -101,7 +102,7 @@ export const Hero: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 w-full sm:w-auto">
           {/* ACCESO A LA PLATAFORMA */}
           <a
-            href="https://tiva.prol.prosuite.pro/sign-in"
+            href={PLATFORM_SIGNIN_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full text-sm sm:text-base font-semibold text-white bg-apple-blue hover:bg-apple-blueHover active:scale-95 transition-all duration-150 shadow-[0_4px_24px_rgba(0,113,227,0.5)] hover:shadow-[0_6px_32px_rgba(0,113,227,0.65)]"

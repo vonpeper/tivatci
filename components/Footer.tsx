@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { ExternalLink, Mail, Phone, MapPin } from "lucide-react";
 import { NeuronCanvas } from "@/components/NeuronCanvas";
+import { PLATFORM_SIGNIN_URL } from "@/lib/platform";
 
 export const Footer: React.FC = () => {
   return (
@@ -47,7 +48,7 @@ export const Footer: React.FC = () => {
           {/* Quick Links */}
           <div className="flex flex-wrap items-center gap-6 text-xs font-medium">
             <a
-              href="https://tiva.prol.prosuite.pro/sign-in"
+              href={PLATFORM_SIGNIN_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="text-cyan-400 hover:text-cyan-300 hover:underline"
